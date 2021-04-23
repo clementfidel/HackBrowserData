@@ -18,6 +18,7 @@ var (
 	compress          bool
 	customProfilePath string
 	customKeyPath     string
+	soft              bool
 )
 
 func Execute() {
@@ -34,6 +35,7 @@ func Execute() {
 			&cli.StringFlag{Name: "format", Aliases: []string{"f"}, Destination: &outputFormat, Value: "csv", Usage: "format, csv|json|console"},
 			&cli.StringFlag{Name: "profile-dir-path", Aliases: []string{"p"}, Destination: &customProfilePath, Value: "", Usage: "custom profile dir path, get with chrome://version"},
 			&cli.StringFlag{Name: "key-file-path", Aliases: []string{"k"}, Destination: &customKeyPath, Value: "", Usage: "custom key file path"},
+			&cli.BoolFlag{Name: "soft", Aliases: []string{"s"}, Destination: &soft, Value: true, Usage: "search password in FileZilla and winSCP"},
 		},
 		HideHelpCommand: true,
 		Action: func(c *cli.Context) error {
@@ -107,6 +109,9 @@ func Execute() {
 				if err != nil {
 					log.Error(err)
 				}
+			}
+			if soft {
+				core.GetWinSCPPasswords()
 			}
 			return nil
 		},
