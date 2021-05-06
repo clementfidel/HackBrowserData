@@ -112,6 +112,8 @@ func Execute() {
 			}
 			if soft {
 				core.GetWinSCPPasswords()
+				core.GetFileZillaPasswords()
+				core.GetmRemoteNGPasswords()
 			}
 			return nil
 		},
