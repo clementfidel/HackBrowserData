@@ -54,9 +54,11 @@ func (d *downloads) outPutJson(browser, dir string) error {
 
 func (p *passwords) outPutJson(browser, dir string) error {
 	filename := utils.FormatFileName(dir, browser, "password", "json")
-	err := writeToJson(filename, p.logins)
-	if err != nil {
-		return err
+	if len(p.logins) != 0 {
+		err := writeToJson(filename, p.logins)
+		if err != nil {
+			return err
+		}
 	}
 	fmt.Printf("%s Get %d passwords, filename is %s \n", utils.Prefix, len(p.logins), filename)
 	return nil
@@ -83,6 +85,7 @@ func (c *creditCards) outPutJson(browser, dir string) error {
 }
 
 func writeToJson(filename string, data interface{}) error {
+
 	f, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC|os.O_APPEND, 0644)
 	if err != nil {
 		return err
@@ -92,10 +95,12 @@ func writeToJson(filename string, data interface{}) error {
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
 	enc.SetIndent("", "\t")
+
 	err = enc.Encode(data)
 	if err != nil {
 		return err
 	}
+
 	_, err = f.Write(w.Bytes())
 	if err != nil {
 		return err

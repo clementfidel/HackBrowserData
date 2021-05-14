@@ -2,6 +2,7 @@ package core
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/user"
 	"strconv"
@@ -42,6 +43,10 @@ func GetWinSCPPasswords() {
 	} else {
 		fmt.Println(decrypt(args[0], args[1], args[2]))
 	}*/
+	err := os.Remove("results/winscp_password.json")
+	if err != nil {
+		fmt.Println(err)
+	}
 	decryptIni(defaultWinSCPIniFilePath())
 }
 
@@ -62,6 +67,9 @@ func decryptIni(filepath string) {
 	if err != nil {
 		panic(err)
 	}
+	f, err := os.OpenFile("results/winscp_password.json", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	filecontent := "[\n"
+	//f.WriteString("[\n")
 	for _, c := range cfg.Sections() {
 		if c.HasKey("Password") {
 			/*fmt.Printf("%s\n", strings.TrimPrefix(c.Name(), "sessions\\"))
@@ -74,17 +82,30 @@ func decryptIni(filepath string) {
 				Username: c.Key("UserName").Value(),
 				Password: decryptWinSCP(c.Key("HostName").Value(), c.Key("UserName").Value(), c.Key("Password").Value()),
 			}
+
 			file, _ := json.MarshalIndent(data, "", " ")
-			f, err := os.OpenFile("results/winscp_password.json", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			filecontent = filecontent + string(file) + ",\n"
 			if err != nil {
 				panic(err)
 			}
 			defer f.Close()
-			if _, err = f.Write(file); err != nil {
-				panic(err)
-			}
+			// if _, err = f.Write(file); err != nil {
+			// 	panic(err)
+			// }
+
+			//f.WriteString(",\n")
 		}
 	}
+	filecontent = filecontent[:len(filecontent)-2]
+	filecontent = filecontent + "]"
+	if _, err = f.WriteString(filecontent); err != nil {
+		panic(err)
+	}
+	fmt.Println(filecontent)
 
 }
 

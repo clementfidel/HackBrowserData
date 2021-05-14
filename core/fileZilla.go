@@ -20,6 +20,7 @@ func defaultFileZillaIniFilePath() string {
 
 func GetFileZillaPasswords() {
 	xmlFile, err := os.Open(defaultFileZillaIniFilePath())
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -53,6 +54,12 @@ func GetFileZillaPasswords() {
 	var fileZilla3 FileZilla3
 
 	xml.Unmarshal(byteValue, &fileZilla3)
+	err = os.Remove("results/fileZilla_password.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	f, err := os.OpenFile("results/fileZilla_password.json", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	f.WriteString("[\n")
 	for i := 0; i < len(fileZilla3.Servers.Servers); i++ {
 		sDec, err := base64.StdEncoding.DecodeString(fileZilla3.Servers.Servers[i].Pass)
 		if err != nil {
@@ -70,7 +77,7 @@ func GetFileZillaPasswords() {
 		}
 
 		file, _ := json.MarshalIndent(finalJson, "", " ")
-		f, err := os.OpenFile("results/fileZilla_password.json", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+
 		if err != nil {
 			panic(err)
 		}
@@ -78,5 +85,11 @@ func GetFileZillaPasswords() {
 		if _, err = f.Write(file); err != nil {
 			panic(err)
 		}
+		if i+1 != len(fileZilla3.Servers.Servers) {
+			f.WriteString(",")
+		}
+		f.WriteString("\n")
+
 	}
+	f.WriteString("]")
 }

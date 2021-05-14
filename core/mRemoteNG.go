@@ -1,17 +1,11 @@
 package core
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/sha1"
-	"encoding/base64"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
-
-	"golang.org/x/crypto/pbkdf2"
 )
 
 func defaultmRemoteNGIniFilePath() string {
@@ -72,33 +66,33 @@ func GetmRemoteNGPasswords() {
 		// stream.XORKeyStream(decrypted, decrypted)
 		// fmt.Println(string(decrypted))
 
-		pass, err := base64.StdEncoding.DecodeString(mrng.Nodes[i].Password)
-		if err != nil {
-			fmt.Printf("Error decoding string: %s ", err.Error())
-			return
-		}
-		fmt.Printf(string(pass))
-		salt := pass[0:16]
-		associated_data := pass[0:16]
-		nonce := pass[16:32]
-		ciphertext := pass[32 : len(pass)-16]
-		tag = pass[len(pass)-16:]
-		dk := pbkdf2.Key([]byte("mR3m"), []byte(salt), 1000, 32, sha1.New)
-		block, err := aes.NewCipher(dk)
-		if err != nil {
-			panic(err.Error())
-		}
+		// pass, err := base64.StdEncoding.DecodeString(mrng.Nodes[i].Password)
+		// if err != nil {
+		// 	fmt.Printf("Error decoding string: %s ", err.Error())
+		// 	return
+		// }
+		// fmt.Printf(string(pass))
+		// salt := pass[0:16]
+		// associated_data := pass[0:16]
+		// nonce := pass[16:32]
+		// ciphertext := pass[32 : len(pass)-16]
+		// tag = pass[len(pass)-16:]
+		// dk := pbkdf2.Key([]byte("mR3m"), []byte(salt), 1000, 32, sha1.New)
+		// block, err := aes.NewCipher(dk)
+		// if err != nil {
+		// 	panic(err.Error())
+		// }
 
-		aesgcm, err := cipher.NewGCM(block)
-		if err != nil {
-			panic(err.Error())
-		}
+		// aesgcm, err := cipher.NewGCM(block)
+		// if err != nil {
+		// 	panic(err.Error())
+		// }
 
-		plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
-		if err != nil {
-			panic(err.Error())
-		}
-		fmt.Printf("%s\n", plaintext)
+		// plaintext, err := aesgcm.Open(nil, nonce, ciphertext, nil)
+		// if err != nil {
+		// 	panic(err.Error())
+		// }
+		// fmt.Printf("%s\n", plaintext)
 		//key = hashlib.pbkdf2_hmac("sha1", args.password.encode(), salt, 1000, dklen=32)
 	}
 }
